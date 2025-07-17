@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "394933582558",
+    "project_id": "backend-1c3f6",
+    "storage_bucket": "backend-1c3f6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:394933582558:android:5319187fb673e48af8604f",
+        "android_client_info": {
+          "package_name": "com.example.helsinco"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "394933582558-v3vo9qlb975659tm950f39u80kpm5569.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpt2Os2vu6Z_ce3ywYi1WmSNYbqsYcJTw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "394933582558-v3vo9qlb975659tm950f39u80kpm5569.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "394933582558-f43fpiv6sstsrv5oro93m9vpd3sonjpq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.newAgentApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
