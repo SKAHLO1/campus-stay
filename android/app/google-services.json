@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "394933582558-avf02r6qpmpq2ctlar9km8lu3n6pcm6m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.helsinco",
+            "certificate_hash": "26a500cd7b5c7184732e3bd3360427b9c02eaf39"
+          }
+        },
+        {
           "client_id": "394933582558-v3vo9qlb975659tm950f39u80kpm5569.apps.googleusercontent.com",
           "client_type": 3
         }

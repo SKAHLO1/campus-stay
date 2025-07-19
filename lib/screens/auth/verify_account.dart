@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:helsinco/main.dart';
+import 'package:helsinco/screens/auth/log_in.dart';
 import 'package:helsinco/screens/auth/sign_up.dart';
 import 'package:helsinco/widgets/custom_button.dart';
 
@@ -64,7 +64,7 @@ class _VerifyAccountState extends State<VerifyAccount> {
 
         // Clear all previous routes and go to HomeScreen
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => MyApp()),
+          MaterialPageRoute(builder: (_) => LogIn()),
           (Route<dynamic> route) => false,
         );
       } else {
