@@ -58,6 +58,68 @@ class _SearchState extends State<Search> {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 32,
+                    child: Stack(
+                      children: [
+                        ListView(
+                          physics: const BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            const SizedBox(width: 24),
+                            buildFilter("House"),
+                            buildFilter("Price"),
+                            buildFilter("Security"),
+                            buildFilter("Bedrooms"),
+                            buildFilter("Garage"),
+                            buildFilter("Swimming Pool"),
+                            const SizedBox(width: 8),
+                          ],
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Container(
+                            width: 28,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.centerRight,
+                                end: Alignment.centerLeft,
+                                colors: [
+                                  Theme.of(context).scaffoldBackgroundColor,
+                                  Theme.of(context).scaffoldBackgroundColor.withOpacity(0.0),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    // TODO: Show filter modal
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.only(left: 16, right: 24),
+                    child: Text(
+                      "Filters",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: StreamBuilder<List<PropertyModel>>(
               stream: PropertyService.getAllProperties(),
@@ -117,6 +179,29 @@ class _SearchState extends State<Search> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget buildFilter(String filterName) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      margin: const EdgeInsets.only(right: 12),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(5)),
+        border: Border.all(
+          color: Colors.grey[300] ?? Colors.grey,
+          width: 1,
+        ),
+      ),
+      child: Center(
+        child: Text(
+          filterName,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }

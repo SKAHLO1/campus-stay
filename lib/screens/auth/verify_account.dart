@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:helsinco/screens/auth/log_in.dart';
@@ -50,19 +49,7 @@ class _VerifyAccountState extends State<VerifyAccount> {
       await user.reload();
 
       if (user.emailVerified) {
-        // Create user document in Firestore if it doesn't exist
-        final docRef =
-            FirebaseFirestore.instance.collection("users").doc(user.uid);
-        final docSnapshot = await docRef.get();
-        if (!docSnapshot.exists) {
-          await docRef.set({
-            "displayName": user.displayName,
-            "email": user.email,
-            "verifiedAt": DateTime.now(),
-          });
-        }
-
-        // Clear all previous routes and go to HomeScreen
+        // User is verified, now navigate to login
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => LogIn()),
           (Route<dynamic> route) => false,

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:helsinco/screens/auth/verify_account.dart';
 import 'package:helsinco/widgets/custom_button.dart';
 import 'package:helsinco/widgets/text_inputs.dart';
+import '../../models/user_model.dart';
+import '../../services/user_service.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -16,6 +18,8 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController password = TextEditingController();
   final TextEditingController fullName = TextEditingController();
   final TextEditingController lastName = TextEditingController();
+  
+  UserType _selectedUserType = UserType.user;
 
   Future<void> signUpUser() async {
     try {
@@ -36,10 +40,23 @@ class _SignUpState extends State<SignUp> {
         // Send verification email
         await user.sendEmailVerification();
 
+        // Create user profile
+        final userModel = UserModel(
+          id: user.uid,
+          email: email.text.trim(),
+          firstName: fullName.text.trim(),
+          lastName: lastName.text.trim(),
+          userType: _selectedUserType,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        await UserService.createUserProfile(userModel);
+
         // Navigate to verification screen
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (_) => VerifyAccount()));
+        if (mounted) {
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => VerifyAccount()));
+        }
       }
     } catch (e) {
       print("🔥 Firebase Error: $e");
@@ -98,6 +115,37 @@ class _SignUpState extends State<SignUp> {
                 isPassword: true,
               ),
               const SizedBox(height: 20),
+              
+              // User Type Selection
+              const Text(
+                'I am a:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: RadioListTile<UserType>(
+                      title: const Text('User'),
+                      subtitle: const Text('Looking for properties'),
+                      value: UserType.user,
+                      groupValue: _selectedUserType,
+                      onChanged: (value) => setState(() => _selectedUserType = value!),
+                    ),
+                  ),
+                  Expanded(
+                    child: RadioListTile<UserType>(
+                      title: const Text('Agent'),
+                      subtitle: const Text('Listing properties'),
+                      value: UserType.agent,
+                      groupValue: _selectedUserType,
+                      onChanged: (value) => setState(() => _selectedUserType = value!),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              
               Text(
                 "By continuing, you agree to our Terms of Service.\nRead our Privacy Policy.",
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade600),

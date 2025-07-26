@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:helsinco/screens/auth/reset_password.dart';
 import 'package:helsinco/screens/auth/sign_up.dart';
-import 'package:helsinco/search.dart';
+import '../home/dashboard_screen.dart';
 import 'package:helsinco/widgets/custom_button.dart';
 import 'package:helsinco/widgets/text_inputs.dart';
 
@@ -32,11 +32,14 @@ class _LogInState extends State<LogIn> {
         print("🔥 User logged in: ${user.email}");
         print("📌 User UID: ${user.uid}");
 
-        // Navigate to search screen
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => Search()),
-          (Route<dynamic> route) => false,
-        );
+        // Navigate to dashboard screen (AuthStateSwitcher will handle this)
+        // The auth state will automatically redirect to DashboardScreen
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            (Route<dynamic> route) => false,
+          );
+        }
       }
     } catch (e) {
       print("🚨 Firebase Login Error: $e");

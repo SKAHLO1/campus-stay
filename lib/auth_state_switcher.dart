@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:helsinco/screens/home_screen.dart';
+import 'package:helsinco/screens/home/dashboard_screen.dart';
 
 import 'package:helsinco/screens/auth/verify_account.dart';
 import 'package:helsinco/screens/main_screen.dart';
@@ -41,7 +41,7 @@ class _AuthStateSwitcherState extends State<AuthStateSwitcher> {
         if (snapshot.hasData) {
           final user = snapshot.data!;
           if (user.emailVerified) {
-            return HomeScreen();
+            return const DashboardScreen();
           } else {
             return VerifyAccount();
           }
