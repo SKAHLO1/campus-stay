@@ -8,7 +8,9 @@ import '../main_screen.dart';
 import 'profile_edit_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final UserModel? currentUser;
+  
+  const SettingsScreen({super.key, this.currentUser});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -20,7 +22,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserProfile();
+    _currentUser = widget.currentUser;
+    if (_currentUser == null) {
+      _loadUserProfile();
+    }
   }
 
   Future<void> _loadUserProfile() async {
@@ -137,7 +142,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            _currentUser!.userType == UserType.agent ? 'AGENT' : 'USER',
+                            _currentUser!.userType == UserType.agent ? 'AGENT' : 'ROOMMATE SEEKER',
                             style: TextStyle(
                               color: _currentUser!.userType == UserType.agent ? Colors.blue : Colors.green,
                               fontSize: 12,

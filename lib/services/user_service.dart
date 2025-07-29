@@ -95,4 +95,44 @@ class UserService {
         .snapshots()
         .map((doc) => doc.exists ? UserModel.fromFirestore(doc) : null);
   }
+
+  // Get all roommate seekers (excluding current user)
+  static Future<List<UserModel>> getAllRoommateSeekers() async {
+    try {
+      final User? currentUser = _auth.currentUser;
+      final QuerySnapshot snapshot = await _firestore
+          .collection(_collection)
+          .where('userType', isEqualTo: 'user')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return snapshot.docs
+          .map((doc) => UserModel.fromFirestore(doc))
+          .where((user) => user.id != currentUser?.uid)
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to get roommate seekers: $e');
+    }
+  }
+
+  // Search roommate seekers by location or name
+  static Future<List<UserModel>> searchRoommateSeekers(String query) async {
+    try {
+      final User? currentUser = _auth.currentUser;
+      final QuerySnapshot snapshot = await _firestore
+          .collection(_collection)
+          .where('userType', isEqualTo: 'user')
+          .get();
+
+      return snapshot.docs
+          .map((doc) => UserModel.fromFirestore(doc))
+          .where((user) => 
+              user.id != currentUser?.uid &&
+              (user.fullName.toLowerCase().contains(query.toLowerCase()) ||
+               (user.preferredLocation?.toLowerCase().contains(query.toLowerCase()) ?? false)))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to search roommate seekers: $e');
+    }
+  }
 }

@@ -126,8 +126,8 @@ class _SignUpState extends State<SignUp> {
                 children: [
                   Expanded(
                     child: RadioListTile<UserType>(
-                      title: const Text('User'),
-                      subtitle: const Text('Looking for properties'),
+                      title: const Text('Roommate Seeker'),
+                      subtitle: const Text('I\'m looking for a roommate/room'),
                       value: UserType.user,
                       groupValue: _selectedUserType,
                       onChanged: (value) => setState(() => _selectedUserType = value!),

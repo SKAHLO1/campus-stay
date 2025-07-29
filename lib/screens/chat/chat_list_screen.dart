@@ -6,7 +6,9 @@ import '../../services/user_service.dart';
 import 'chat_room_screen.dart';
 
 class ChatListScreen extends StatefulWidget {
-  const ChatListScreen({super.key});
+  final UserModel? currentUser;
+  
+  const ChatListScreen({super.key, this.currentUser});
 
   @override
   State<ChatListScreen> createState() => _ChatListScreenState();
@@ -18,7 +20,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
   @override
   void initState() {
     super.initState();
-    _loadCurrentUser();
+    _currentUser = widget.currentUser;
+    if (_currentUser == null) {
+      _loadCurrentUser();
+    }
   }
 
   Future<void> _loadCurrentUser() async {
@@ -83,8 +88,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   const SizedBox(height: 8),
                   Text(
                     _currentUser!.userType == UserType.agent
-                        ? 'Users will appear here when they contact you'
-                        : 'Start chatting with agents to see conversations here',
+                        ? 'Roommate seekers will appear here when they contact you'
+                        : 'Start chatting with agents and other roommate seekers to see conversations here',
                     style: TextStyle(
                       color: Colors.grey[500],
                     ),

@@ -11,6 +11,7 @@ import '../chat/chat_list_screen.dart';
 import '../agent/upload_property_screen.dart';
 import '../agent/agent_properties_screen.dart';
 import '../property/search_screen.dart';
+import '../roommate/roommate_seekers_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -107,7 +108,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   _currentUser?.userType == UserType.agent
                       ? 'Manage your properties and connect with clients'
-                      : 'Find your perfect home today',
+                      : 'Find your perfect home and connect with roommates',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
                     fontSize: 16,
@@ -150,6 +151,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             AgentPropertiesScreen(agentId: _currentUser!.id),
                       ),
                     ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+          ],
+
+          // Quick Actions for Roommate Seekers
+          if (_currentUser?.userType == UserType.user) ...[
+            const Text(
+              'Find Roommates',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionCard(
+                    icon: Icons.people_alt,
+                    title: 'Find Roommates',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const RoommateSeekerScreen()),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildActionCard(
+                    icon: Icons.chat_bubble_outline,
+                    title: 'My Chats',
+                    onTap: () => setState(() => _currentIndex = 2),
                   ),
                 ),
               ],
@@ -537,8 +571,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           _buildHomeTab(),
           const SearchScreen(),
-          const ChatListScreen(),
-          const SettingsScreen(),
+          _currentUser != null ? ChatListScreen(currentUser: _currentUser!) : const Center(child: CircularProgressIndicator()),
+          _currentUser != null ? SettingsScreen(currentUser: _currentUser!) : const Center(child: CircularProgressIndicator()),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

@@ -146,6 +146,47 @@ class ChatService {
             .toList());
   }
 
+  // Create or get user-to-user chat room (for roommate seekers)
+  static Future<String> createUserToUserChatRoom(
+    String user1Id,
+    String user2Id,
+    String user1Name,
+    String user2Name,
+  ) async {
+    try {
+      // Create a consistent room ID by sorting user IDs
+      final List<String> sortedIds = [user1Id, user2Id]..sort();
+      final String roomId = '${sortedIds[0]}_${sortedIds[1]}';
+
+      // Check if chat room already exists
+      final DocumentSnapshot existingRoom = await _firestore
+          .collection(_roomsCollection)
+          .doc(roomId)
+          .get();
+
+      if (existingRoom.exists) {
+        return roomId;
+      }
+
+      // Create new user-to-user chat room
+      final Map<String, dynamic> chatRoomData = {
+        'id': roomId,
+        'participants': [user1Id, user2Id],
+        'participantNames': {user1Id: user1Name, user2Id: user2Name},
+        'lastMessage': 'Chat started',
+        'lastMessageTime': DateTime.now(),
+        'createdAt': DateTime.now(),
+        'updatedAt': DateTime.now(),
+        'type': 'user_to_user', // To distinguish from agent chats
+      };
+
+      await _firestore.collection(_roomsCollection).doc(roomId).set(chatRoomData);
+      return roomId;
+    } catch (e) {
+      throw Exception('Failed to create user chat room: $e');
+    }
+  }
+
   // Mark messages as read
   static Future<void> markMessagesAsRead(String roomId, String userId) async {
     try {

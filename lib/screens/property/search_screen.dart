@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../models/property_model.dart';
+import '../../models/user_model.dart';
 import '../../services/property_service.dart';
+import '../../services/user_service.dart';
 import 'property_detail_screen.dart';
 import '../filter/filter_screen.dart';
+import '../chat/chat_room_screen.dart';
+import '../../services/chat_service.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
