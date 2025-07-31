@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:helsinco/screens/auth/verify_account.dart';
+import 'package:helsinco/screens/home/dashboard_screen.dart';
 import 'package:helsinco/widgets/custom_button.dart';
 import 'package:helsinco/widgets/text_inputs.dart';
 import '../../models/user_model.dart';
 import '../../services/user_service.dart';
+import '../../services/google_auth_service.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -18,7 +20,7 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController password = TextEditingController();
   final TextEditingController fullName = TextEditingController();
   final TextEditingController lastName = TextEditingController();
-  
+
   UserType _selectedUserType = UserType.user;
 
   Future<void> signUpUser() async {
@@ -55,7 +57,8 @@ class _SignUpState extends State<SignUp> {
 
         // Navigate to verification screen
         if (mounted) {
-          Navigator.of(context).push(MaterialPageRoute(builder: (_) => VerifyAccount()));
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (_) => VerifyAccount()));
         }
       }
     } catch (e) {
@@ -64,6 +67,34 @@ class _SignUpState extends State<SignUp> {
         context,
       ).showSnackBar(
           SnackBar(content: Text("Account could not be created: $e")));
+    }
+  }
+
+  // Google sign up function
+  Future<void> signUpWithGoogle() async {
+    try {
+      final User? user =
+          await GoogleAuthService.signUpWithGoogle(_selectedUserType);
+
+      if (user != null) {
+        print("🔥 User signed up with Google: ${user.email}");
+        print("📌 User UID: ${user.uid}");
+
+        // Navigate to dashboard screen (AuthStateSwitcher will handle this)
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            (Route<dynamic> route) => false,
+          );
+        }
+      }
+    } catch (e) {
+      print("🚨 Google Sign Up Error: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Google sign up failed: $e")),
+        );
+      }
     }
   }
 
@@ -115,7 +146,7 @@ class _SignUpState extends State<SignUp> {
                 isPassword: true,
               ),
               const SizedBox(height: 20),
-              
+
               // User Type Selection
               const Text(
                 'I am a:',
@@ -130,7 +161,8 @@ class _SignUpState extends State<SignUp> {
                       subtitle: const Text('I\'m looking for a roommate/room'),
                       value: UserType.user,
                       groupValue: _selectedUserType,
-                      onChanged: (value) => setState(() => _selectedUserType = value!),
+                      onChanged: (value) =>
+                          setState(() => _selectedUserType = value!),
                     ),
                   ),
                   Expanded(
@@ -139,13 +171,14 @@ class _SignUpState extends State<SignUp> {
                       subtitle: const Text('Listing properties'),
                       value: UserType.agent,
                       groupValue: _selectedUserType,
-                      onChanged: (value) => setState(() => _selectedUserType = value!),
+                      onChanged: (value) =>
+                          setState(() => _selectedUserType = value!),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              
+
               Text(
                 "By continuing, you agree to our Terms of Service.\nRead our Privacy Policy.",
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
@@ -166,6 +199,50 @@ class _SignUpState extends State<SignUp> {
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1,
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // "Or" divider
+              Row(
+                children: [
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'OR',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Expanded(child: Divider()),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // Google Sign Up button
+              Container(
+                width: double.infinity,
+                height: 48,
+                child: OutlinedButton.icon(
+                  onPressed: signUpWithGoogle,
+                  icon: Image.asset(
+                    'assets/images/google_icon.png',
+                    height: 20,
+                    width: 20,
+                  ),
+                  label: const Text('Continue with Google'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.grey.shade700,
+                    side: BorderSide(color: Colors.grey.shade300, width: 1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
                 ),
               ),
             ],

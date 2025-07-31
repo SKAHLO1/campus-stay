@@ -169,14 +169,17 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           if (!isMe) ...[
             CircleAvatar(
               radius: 16,
               backgroundColor: const Color(0xFF2E3192),
               child: Text(
-                message.senderName.isNotEmpty ? message.senderName[0].toUpperCase() : '?',
+                message.senderName.isNotEmpty
+                    ? message.senderName[0].toUpperCase()
+                    : '?',
                 style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
@@ -233,7 +236,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               radius: 16,
               backgroundColor: Colors.grey[300],
               child: Text(
-                message.senderName.isNotEmpty ? message.senderName[0].toUpperCase() : '?',
+                message.senderName.isNotEmpty
+                    ? message.senderName[0].toUpperCase()
+                    : '?',
                 style: const TextStyle(color: Colors.black54, fontSize: 12),
               ),
             ),

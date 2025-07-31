@@ -571,8 +571,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           _buildHomeTab(),
           const SearchScreen(),
-          _currentUser != null ? ChatListScreen(currentUser: _currentUser!) : const Center(child: CircularProgressIndicator()),
-          _currentUser != null ? SettingsScreen(currentUser: _currentUser!) : const Center(child: CircularProgressIndicator()),
+          _currentUser != null
+              ? ChatListScreen(currentUser: _currentUser!)
+              : const Center(child: CircularProgressIndicator()),
+          _currentUser != null
+              ? SettingsScreen(currentUser: _currentUser!)
+              : const Center(child: CircularProgressIndicator()),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

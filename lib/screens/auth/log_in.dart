@@ -5,6 +5,7 @@ import 'package:helsinco/screens/auth/sign_up.dart';
 import '../home/dashboard_screen.dart';
 import 'package:helsinco/widgets/custom_button.dart';
 import 'package:helsinco/widgets/text_inputs.dart';
+import '../../services/google_auth_service.dart';
 
 class LogIn extends StatefulWidget {
   const LogIn({super.key});
@@ -46,6 +47,33 @@ class _LogInState extends State<LogIn> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Login failed: $e")));
+    }
+  }
+
+  // Google sign in function
+  Future<void> signInWithGoogle() async {
+    try {
+      final User? user = await GoogleAuthService.signInWithGoogle();
+
+      if (user != null) {
+        print("🔥 User signed in with Google: ${user.email}");
+        print("📌 User UID: ${user.uid}");
+
+        // Navigate to dashboard screen (AuthStateSwitcher will handle this)
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            (Route<dynamic> route) => false,
+          );
+        }
+      }
+    } catch (e) {
+      print("🚨 Google Sign In Error: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Google sign in failed: $e")),
+        );
+      }
     }
   }
 
@@ -114,6 +142,55 @@ class _LogInState extends State<LogIn> {
                   letterSpacing: 1,
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // "Or" divider
+              Row(
+                children: [
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'OR',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Expanded(child: Divider()),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // Google Sign In button
+              Container(
+                width: double.infinity,
+                height: 48,
+                child: OutlinedButton.icon(
+                  onPressed: signInWithGoogle,
+                  icon: Image.asset(
+                    'assets/images/google_icon.png',
+                    height: 20,
+                    width: 20,
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.account_circle,
+                      size: 20,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  label: const Text('Continue with Google'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.grey.shade700,
+                    side: BorderSide(color: Colors.grey.shade300, width: 1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 20),
 
               // "Forgot Password" button

@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import '../../models/user_model.dart';
 import '../../services/user_service.dart';
+import '../../services/google_auth_service.dart';
 import '../main_screen.dart';
 import 'profile_edit_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final UserModel? currentUser;
-  
+
   const SettingsScreen({super.key, this.currentUser});
 
   @override
@@ -41,15 +40,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _signOut() async {
     try {
-      await FirebaseAuth.instance.signOut();
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => MainScreen()),
-        (Route<dynamic> route) => false,
-      );
+      // Check if user is signed in with Google and handle accordingly
+      if (GoogleAuthService.isSignedInWithGoogle()) {
+        await GoogleAuthService.signOut();
+      } else {
+        await FirebaseAuth.instance.signOut();
+      }
+      
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => MainScreen()),
+          (Route<dynamic> route) => false,
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to sign out: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to sign out: $e')),
+        );
+      }
     }
   }
 
@@ -109,9 +118,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         CircleAvatar(
                           radius: 40,
-                          backgroundImage: _currentUser!.profileImageUrl?.isNotEmpty == true
-                              ? NetworkImage(_currentUser!.profileImageUrl!)
-                              : null,
+                          backgroundImage:
+                              _currentUser!.profileImageUrl?.isNotEmpty == true
+                                  ? NetworkImage(_currentUser!.profileImageUrl!)
+                                  : null,
                           child: _currentUser!.profileImageUrl?.isEmpty != false
                               ? const Icon(Icons.person, size: 40)
                               : null,
@@ -134,7 +144,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: _currentUser!.userType == UserType.agent
                                 ? Colors.blue.withOpacity(0.1)
@@ -142,9 +153,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            _currentUser!.userType == UserType.agent ? 'AGENT' : 'ROOMMATE SEEKER',
+                            _currentUser!.userType == UserType.agent
+                                ? 'AGENT'
+                                : 'ROOMMATE SEEKER',
                             style: TextStyle(
-                              color: _currentUser!.userType == UserType.agent ? Colors.blue : Colors.green,
+                              color: _currentUser!.userType == UserType.agent
+                                  ? Colors.blue
+                                  : Colors.green,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -157,7 +172,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => ProfileEditScreen(user: _currentUser!),
+                                builder: (_) =>
+                                    ProfileEditScreen(user: _currentUser!),
                               ),
                             ).then((_) => _loadUserProfile()),
                             style: ElevatedButton.styleFrom(
@@ -209,7 +225,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           applicationVersion: '1.0.0',
                           applicationIcon: const Icon(Icons.home_work),
                           children: [
-                            const Text('A real estate app for finding your perfect home.'),
+                            const Text(
+                                'A real estate app for finding your perfect home.'),
                           ],
                         );
                       },

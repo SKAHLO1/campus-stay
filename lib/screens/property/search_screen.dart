@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/property_model.dart';
-import '../../models/user_model.dart';
 import '../../services/property_service.dart';
-import '../../services/user_service.dart';
 import 'property_detail_screen.dart';
 import '../filter/filter_screen.dart';
-import '../chat/chat_room_screen.dart';
-import '../../services/chat_service.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -67,45 +63,63 @@ class _SearchScreenState extends State<SearchScreen> {
     // Apply search query
     if (_searchQuery.isNotEmpty) {
       filtered = filtered.where((property) {
-        return property.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-               property.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-               property.location.toLowerCase().contains(_searchQuery.toLowerCase());
+        return property.title
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()) ||
+            property.description
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()) ||
+            property.location
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase());
       }).toList();
     }
 
     // Apply location filter
     if (_selectedLocation != null && _selectedLocation!.isNotEmpty) {
       filtered = filtered.where((property) {
-        return property.location.toLowerCase().contains(_selectedLocation!.toLowerCase());
+        return property.location
+            .toLowerCase()
+            .contains(_selectedLocation!.toLowerCase());
       }).toList();
     }
 
     // Apply price filters
     if (_minPrice != null) {
-      filtered = filtered.where((property) => property.price >= _minPrice!).toList();
+      filtered =
+          filtered.where((property) => property.price >= _minPrice!).toList();
     }
     if (_maxPrice != null) {
-      filtered = filtered.where((property) => property.price <= _maxPrice!).toList();
+      filtered =
+          filtered.where((property) => property.price <= _maxPrice!).toList();
     }
 
     // Apply bedroom filter
     if (_selectedBedrooms != null) {
-      filtered = filtered.where((property) => property.bedrooms == _selectedBedrooms).toList();
+      filtered = filtered
+          .where((property) => property.bedrooms == _selectedBedrooms)
+          .toList();
     }
 
     // Apply bathroom filter
     if (_selectedBathrooms != null) {
-      filtered = filtered.where((property) => property.bathrooms == _selectedBathrooms).toList();
+      filtered = filtered
+          .where((property) => property.bathrooms == _selectedBathrooms)
+          .toList();
     }
 
     // Apply property type filter
     if (_selectedPropertyType != null && _selectedPropertyType!.isNotEmpty) {
-      filtered = filtered.where((property) => property.propertyType == _selectedPropertyType).toList();
+      filtered = filtered
+          .where((property) => property.propertyType == _selectedPropertyType)
+          .toList();
     }
 
     // Apply listing type filter
     if (_selectedListingType != null && _selectedListingType!.isNotEmpty) {
-      filtered = filtered.where((property) => property.listingType == _selectedListingType).toList();
+      filtered = filtered
+          .where((property) => property.listingType == _selectedListingType)
+          .toList();
     }
 
     setState(() {
@@ -298,7 +312,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildFilterChip(String label) {
     bool isSelected = false;
-    
+
     // Determine if chip is selected based on current filters
     switch (label.toLowerCase()) {
       case 'house':
@@ -317,7 +331,8 @@ class _SearchScreenState extends State<SearchScreen> {
         isSelected = _selectedListingType == 'sale';
         break;
       case 'all':
-        isSelected = _selectedPropertyType == null && _selectedListingType == null;
+        isSelected =
+            _selectedPropertyType == null && _selectedListingType == null;
         break;
     }
 
@@ -377,7 +392,8 @@ class _SearchScreenState extends State<SearchScreen> {
             Container(
               height: 200,
               decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(12)),
                 image: property.imageUrls.isNotEmpty
                     ? DecorationImage(
                         image: NetworkImage(property.imageUrls.first),
@@ -398,9 +414,12 @@ class _SearchScreenState extends State<SearchScreen> {
                           top: 12,
                           left: 12,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: property.listingType == 'rent' ? Colors.blue : Colors.green,
+                              color: property.listingType == 'rent'
+                                  ? Colors.blue
+                                  : Colors.green,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -441,7 +460,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                      const Icon(Icons.location_on,
+                          size: 16, color: Colors.grey),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -456,9 +476,11 @@ class _SearchScreenState extends State<SearchScreen> {
                     children: [
                       _buildPropertySpec(Icons.bed, '${property.bedrooms}'),
                       const SizedBox(width: 16),
-                      _buildPropertySpec(Icons.bathroom, '${property.bathrooms}'),
+                      _buildPropertySpec(
+                          Icons.bathroom, '${property.bathrooms}'),
                       const SizedBox(width: 16),
-                      _buildPropertySpec(Icons.square_foot, '${property.sqm.toInt()}'),
+                      _buildPropertySpec(
+                          Icons.square_foot, '${property.sqm.toInt()}'),
                     ],
                   ),
                 ],

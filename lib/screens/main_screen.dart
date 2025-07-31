@@ -72,7 +72,7 @@ class MainScreen extends StatelessWidget {
                               ),
                               SizedBox(height: 24),
                               Text(
-                                'Find Your Dream Home',
+                                'Find Your Roommate',
                                 style: TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
@@ -83,7 +83,7 @@ class MainScreen extends StatelessWidget {
                               ),
                               SizedBox(height: 16),
                               Text(
-                                'Connect with trusted real estate agents and discover the perfect property for you',
+                                'Connect with roommates and find the perfect room for you',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.white.withOpacity(0.9),
