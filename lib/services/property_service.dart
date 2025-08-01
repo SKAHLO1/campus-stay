@@ -47,11 +47,11 @@ class PropertyService {
   static Stream<List<PropertyModel>> getAllProperties() {
     return _firestore
         .collection(_collection)
-        .where('isActive', isEqualTo: true)
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => PropertyModel.fromFirestore(doc))
+            .where((property) => property.isActive ?? true)
             .toList());
   }
 
@@ -60,11 +60,17 @@ class PropertyService {
     return _firestore
         .collection(_collection)
         .where('agentId', isEqualTo: agentId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => PropertyModel.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+          List<PropertyModel> properties = snapshot.docs
+              .map((doc) => PropertyModel.fromFirestore(doc))
+              .toList();
+          
+          // Sort by creation date client-side
+          properties.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          
+          return properties;
+        });
   }
 
   // Get nearby properties based on user location
@@ -72,17 +78,16 @@ class PropertyService {
     try {
       // Convert radius from kilometers to degrees (rough approximation)
       double latDelta = radiusInKm / 111.0; // 1 degree ≈ 111 km
-      double lonDelta = radiusInKm / (111.0 * math.cos(latitude * math.pi / 180.0));
 
       final QuerySnapshot snapshot = await _firestore
           .collection(_collection)
-          .where('isActive', isEqualTo: true)
           .where('latitude', isGreaterThan: latitude - latDelta)
           .where('latitude', isLessThan: latitude + latDelta)
           .get();
 
       List<PropertyModel> allProperties = snapshot.docs
           .map((doc) => PropertyModel.fromFirestore(doc))
+          .where((property) => property.isActive ?? true)
           .toList();
 
       // Filter by longitude and calculate exact distance
@@ -125,41 +130,57 @@ class PropertyService {
     String? listingType,
   }) async {
     try {
-      Query queryRef = _firestore.collection(_collection).where('isActive', isEqualTo: true);
+      Query queryRef = _firestore.collection(_collection);
 
-      if (location != null && location.isNotEmpty) {
-        queryRef = queryRef.where('location', isGreaterThanOrEqualTo: location)
-            .where('location', isLessThan: location + '\uf8ff');
-      }
-
-      if (minPrice != null) {
-        queryRef = queryRef.where('price', isGreaterThanOrEqualTo: minPrice);
-      }
-
-      if (maxPrice != null) {
-        queryRef = queryRef.where('price', isLessThanOrEqualTo: maxPrice);
-      }
-
-      if (bedrooms != null) {
-        queryRef = queryRef.where('bedrooms', isEqualTo: bedrooms);
-      }
-
-      if (bathrooms != null) {
-        queryRef = queryRef.where('bathrooms', isEqualTo: bathrooms);
-      }
-
+      // Start with the most selective filter
       if (propertyType != null && propertyType.isNotEmpty) {
         queryRef = queryRef.where('propertyType', isEqualTo: propertyType);
-      }
-
-      if (listingType != null && listingType.isNotEmpty) {
+      } else if (listingType != null && listingType.isNotEmpty) {
         queryRef = queryRef.where('listingType', isEqualTo: listingType);
+      } else if (bedrooms != null) {
+        queryRef = queryRef.where('bedrooms', isEqualTo: bedrooms);
+      } else if (bathrooms != null) {
+        queryRef = queryRef.where('bathrooms', isEqualTo: bathrooms);
       }
 
       final QuerySnapshot snapshot = await queryRef.get();
       List<PropertyModel> properties = snapshot.docs
           .map((doc) => PropertyModel.fromFirestore(doc))
+          .where((property) => property.isActive ?? true)
           .toList();
+
+      // Apply client-side filtering for remaining criteria
+      if (location != null && location.isNotEmpty) {
+        properties = properties.where((property) =>
+            property.location.toLowerCase().contains(location.toLowerCase())).toList();
+      }
+
+      if (minPrice != null) {
+        properties = properties.where((property) => property.price >= minPrice).toList();
+      }
+
+      if (maxPrice != null) {
+        properties = properties.where((property) => property.price <= maxPrice).toList();
+      }
+
+      if (bedrooms != null && (propertyType == null || propertyType.isEmpty)) {
+        properties = properties.where((property) => property.bedrooms == bedrooms).toList();
+      }
+
+      if (bathrooms != null && (propertyType == null || propertyType.isEmpty) && bedrooms == null) {
+        properties = properties.where((property) => property.bathrooms == bathrooms).toList();
+      }
+
+      if (propertyType != null && propertyType.isNotEmpty && 
+          !(queryRef.toString().contains('propertyType'))) {
+        properties = properties.where((property) => property.propertyType == propertyType).toList();
+      }
+
+      if (listingType != null && listingType.isNotEmpty && 
+          !(queryRef.toString().contains('listingType')) && 
+          (propertyType == null || propertyType.isEmpty)) {
+        properties = properties.where((property) => property.listingType == listingType).toList();
+      }
 
       // Filter by title if query is provided
       if (query != null && query.isNotEmpty) {

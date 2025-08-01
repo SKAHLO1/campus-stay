@@ -214,7 +214,7 @@ class _AgentPropertiesScreenState extends State<AgentPropertiesScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '\$${property.price.toStringAsFixed(0)}',
+                    '₦${property.price.toStringAsFixed(0)}',
                     style: const TextStyle(
                       color: Color(0xFF2E3192),
                       fontSize: 20,

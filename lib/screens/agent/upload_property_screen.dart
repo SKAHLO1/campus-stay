@@ -201,7 +201,7 @@ class _UploadPropertyScreenState extends State<UploadPropertyScreen> {
                     TextFormField(
                       controller: _priceController,
                       decoration: const InputDecoration(
-                        labelText: 'Price (\$)',
+                        labelText: 'Price (₦)',
                         border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,

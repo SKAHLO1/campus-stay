@@ -19,20 +19,21 @@ class ChatService {
     String? propertyTitle,
   }) async {
     try {
+      // Use a deterministic room ID to avoid multiple where clauses
+      final String potentialRoomId = '${userId}_${agentId}';
+      
       // Check if chat room already exists
-      final QuerySnapshot existingRoom = await _firestore
+      final DocumentSnapshot existingRoom = await _firestore
           .collection(_roomsCollection)
-          .where('userId', isEqualTo: userId)
-          .where('agentId', isEqualTo: agentId)
-          .limit(1)
+          .doc(potentialRoomId)
           .get();
 
-      if (existingRoom.docs.isNotEmpty) {
-        return existingRoom.docs.first.id;
+      if (existingRoom.exists) {
+        return potentialRoomId;
       }
 
       // Create new chat room
-      final String roomId = const Uuid().v4();
+      final String roomId = potentialRoomId;
       final ChatRoom chatRoom = ChatRoom(
         id: roomId,
         userId: userId,
@@ -122,11 +123,17 @@ class ChatService {
     return _firestore
         .collection(_roomsCollection)
         .where('userId', isEqualTo: currentUser.uid)
-        .orderBy('lastMessageTime', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => ChatRoom.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+          List<ChatRoom> rooms = snapshot.docs
+              .map((doc) => ChatRoom.fromFirestore(doc))
+              .toList();
+          
+          // Sort by last message time client-side
+          rooms.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+          
+          return rooms;
+        });
   }
 
   // Get chat rooms for agent
@@ -139,11 +146,17 @@ class ChatService {
     return _firestore
         .collection(_roomsCollection)
         .where('agentId', isEqualTo: currentUser.uid)
-        .orderBy('lastMessageTime', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => ChatRoom.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+          List<ChatRoom> rooms = snapshot.docs
+              .map((doc) => ChatRoom.fromFirestore(doc))
+              .toList();
+          
+          // Sort by last message time client-side
+          rooms.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+          
+          return rooms;
+        });
   }
 
   // Create or get user-to-user chat room (for roommate seekers)
@@ -190,17 +203,20 @@ class ChatService {
   // Mark messages as read
   static Future<void> markMessagesAsRead(String roomId, String userId) async {
     try {
-      final QuerySnapshot unreadMessages = await _firestore
+      // Get all messages for the user and filter client-side
+      final QuerySnapshot allMessages = await _firestore
           .collection(_roomsCollection)
           .doc(roomId)
           .collection(_messagesCollection)
           .where('receiverId', isEqualTo: userId)
-          .where('isRead', isEqualTo: false)
           .get();
 
       final WriteBatch batch = _firestore.batch();
-      for (QueryDocumentSnapshot doc in unreadMessages.docs) {
-        batch.update(doc.reference, {'isRead': true});
+      for (QueryDocumentSnapshot doc in allMessages.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        if (data['isRead'] == false) {
+          batch.update(doc.reference, {'isRead': true});
+        }
       }
 
       await batch.commit();
@@ -221,15 +237,20 @@ class ChatService {
 
       int totalUnread = 0;
       for (QueryDocumentSnapshot room in rooms.docs) {
-        final QuerySnapshot unreadMessages = await _firestore
+        final QuerySnapshot allMessages = await _firestore
             .collection(_roomsCollection)
             .doc(room.id)
             .collection(_messagesCollection)
             .where('receiverId', isEqualTo: userId)
-            .where('isRead', isEqualTo: false)
             .get();
         
-        totalUnread += unreadMessages.docs.length;
+        // Count unread messages client-side
+        for (QueryDocumentSnapshot message in allMessages.docs) {
+          final data = message.data() as Map<String, dynamic>;
+          if (data['isRead'] == false) {
+            totalUnread++;
+          }
+        }
       }
 
       return totalUnread;

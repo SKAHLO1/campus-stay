@@ -222,44 +222,136 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 24),
           ],
 
-          // All Properties Section
-          const Text(
-            'All Properties',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          StreamBuilder<List<PropertyModel>>(
-            stream: PropertyService.getAllProperties(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+          // Show different content based on user type
+          if (_currentUser?.userType == UserType.agent) ...[
+            // For agents: Show their own properties
+            const Text(
+              'My Properties',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            StreamBuilder<List<PropertyModel>>(
+              stream: PropertyService.getPropertiesByAgent(_currentUser!.id),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
 
-              final properties = snapshot.data ?? [];
+                final properties = snapshot.data ?? [];
 
-              if (properties.isEmpty) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(32),
-                    child: Text('No properties available'),
-                  ),
+                if (properties.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.home_work, size: 64, color: Colors.grey),
+                          const SizedBox(height: 16),
+                          const Text('No properties uploaded yet'),
+                          const SizedBox(height: 8),
+                          ElevatedButton.icon(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const UploadPropertyScreen(),
+                              ),
+                            ),
+                            icon: const Icon(Icons.add),
+                            label: const Text('Upload Your First Property'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2E3192),
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: properties.take(5).length, // Show only first 5
+                  itemBuilder: (context, index) {
+                    return _buildPropertyListItem(properties[index]);
+                  },
                 );
-              }
+              },
+            ),
+            if (_currentUser != null) ...[
+              const SizedBox(height: 16),
+              Center(
+                child: TextButton.icon(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AgentPropertiesScreen(agentId: _currentUser!.id),
+                    ),
+                  ),
+                  icon: const Icon(Icons.visibility),
+                  label: const Text('View All My Properties'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF2E3192),
+                  ),
+                ),
+              ),
+            ],
+          ] else ...[
+            // For regular users: Show all available properties
+            const Text(
+              'Available Properties',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            StreamBuilder<List<PropertyModel>>(
+              stream: PropertyService.getAllProperties(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: properties.length,
-                itemBuilder: (context, index) {
-                  return _buildPropertyListItem(properties[index]);
-                },
-              );
-            },
-          ),
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+
+                final properties = snapshot.data ?? [];
+
+                if (properties.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32),
+                      child: Text('No properties available'),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: properties.take(10).length, // Limit to 10 for performance
+                  itemBuilder: (context, index) {
+                    return _buildPropertyListItem(properties[index]);
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: TextButton.icon(
+                onPressed: () => setState(() => _currentIndex = 1), // Go to search tab
+                icon: const Icon(Icons.search),
+                label: const Text('Search All Properties'),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF2E3192),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -377,7 +469,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '\$${property.price.toStringAsFixed(0)}',
+                      '₦${property.price.toStringAsFixed(0)}',
                       style: const TextStyle(
                         color: Color(0xFF2E3192),
                         fontWeight: FontWeight.bold,
@@ -473,7 +565,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '\$${property.price.toStringAsFixed(0)}',
+                      '₦${property.price.toStringAsFixed(0)}',
                       style: const TextStyle(
                         color: Color(0xFF2E3192),
                         fontWeight: FontWeight.bold,

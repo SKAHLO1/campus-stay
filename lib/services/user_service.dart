@@ -61,12 +61,16 @@ class UserService {
       final QuerySnapshot snapshot = await _firestore
           .collection(_collection)
           .where('userType', isEqualTo: 'agent')
-          .orderBy('rating', descending: true)
           .get();
 
-      return snapshot.docs
+      List<UserModel> agents = snapshot.docs
           .map((doc) => UserModel.fromFirestore(doc))
           .toList();
+      
+      // Sort by rating client-side
+      agents.sort((a, b) => (b.rating ?? 0).compareTo(a.rating ?? 0));
+      
+      return agents;
     } catch (e) {
       throw Exception('Failed to get agents: $e');
     }
@@ -103,13 +107,17 @@ class UserService {
       final QuerySnapshot snapshot = await _firestore
           .collection(_collection)
           .where('userType', isEqualTo: 'user')
-          .orderBy('createdAt', descending: true)
           .get();
 
-      return snapshot.docs
+      List<UserModel> seekers = snapshot.docs
           .map((doc) => UserModel.fromFirestore(doc))
           .where((user) => user.id != currentUser?.uid)
           .toList();
+      
+      // Sort by creation date client-side
+      seekers.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      
+      return seekers;
     } catch (e) {
       throw Exception('Failed to get roommate seekers: $e');
     }

@@ -180,7 +180,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                         ),
                       ),
                       Text(
-                        '\$${widget.property.price.toStringAsFixed(0)}',
+                        '₦${widget.property.price.toStringAsFixed(0)}',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,

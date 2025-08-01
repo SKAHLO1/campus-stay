@@ -41,7 +41,7 @@ class _RoommateSeekerScreenState extends State<RoommateSeekerScreen> {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading roommate seekers: \$e')),
+        SnackBar(content: Text('Error loading roommate seekers: $e')),
       );
     }
   }
@@ -70,7 +70,7 @@ class _RoommateSeekerScreenState extends State<RoommateSeekerScreen> {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error searching: \$e')),
+        SnackBar(content: Text('Error searching: $e')),
       );
     }
   }
@@ -99,7 +99,7 @@ class _RoommateSeekerScreenState extends State<RoommateSeekerScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error starting chat: \$e')),
+        SnackBar(content: Text('Error starting chat: $e')),
       );
     }
   }
@@ -162,7 +162,7 @@ class _RoommateSeekerScreenState extends State<RoommateSeekerScreen> {
                             Text(
                               _searchQuery.isEmpty
                                   ? 'No roommate seekers found'
-                                  : 'No results for "\$_searchQuery"',
+                                  : 'No results for "$_searchQuery"',
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.grey[600],
@@ -251,7 +251,7 @@ class _RoommateSeekerScreenState extends State<RoommateSeekerScreen> {
                             const Icon(Icons.attach_money, size: 16, color: Colors.grey),
                             const SizedBox(width: 4),
                             Text(
-                              'Budget: \$\${user.maxBudget!.toInt()}',
+                              'Budget: ₦${user.maxBudget!.toInt()}',
                               style: const TextStyle(color: Colors.grey),
                             ),
                           ],
@@ -303,7 +303,7 @@ class _RoommateSeekerScreenState extends State<RoommateSeekerScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Looking for: \${user.preferredPropertyType}',
+                  'Looking for: ${user.preferredPropertyType}',
                   style: const TextStyle(
                     color: Colors.blue,
                     fontSize: 12,

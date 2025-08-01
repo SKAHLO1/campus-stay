@@ -293,7 +293,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       TextFormField(
                         controller: _maxBudgetController,
                         decoration: const InputDecoration(
-                          labelText: 'Max Budget (\$)',
+                          labelText: 'Max Budget (₦)',
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.number,

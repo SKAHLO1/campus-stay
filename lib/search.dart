@@ -195,7 +195,7 @@ class _SearchState extends State<Search> {
                           ),
                         ),
                         Text(
-                          "\$${property.price.toStringAsFixed(0)}",
+                          "₦${property.price.toStringAsFixed(0)}",
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,

@@ -1,6 +1,6 @@
 {
-    "name": "helsinco",
-    "short_name": "helsinco",
+    "name": "CampusStay",
+    "short_name": "CampusStay",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

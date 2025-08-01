@@ -145,8 +145,8 @@ class _FilterScreenState extends State<FilterScreen> {
                     max: _maxPrice,
                     divisions: 100,
                     labels: RangeLabels(
-                      '\$${_priceRange.start.round()}',
-                      '\$${_priceRange.end.round()}',
+                      '₦${_priceRange.start.round()}',
+                      '₦${_priceRange.end.round()}',
                     ),
                     onChanged: (values) {
                       setState(() {
@@ -157,8 +157,8 @@ class _FilterScreenState extends State<FilterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('\$${_priceRange.start.round()}'),
-                      Text('\$${_priceRange.end.round()}'),
+                      Text('₦${_priceRange.start.round()}'),
+                      Text('₦${_priceRange.end.round()}'),
                     ],
                   ),
                   const SizedBox(height: 24),

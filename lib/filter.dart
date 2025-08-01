@@ -74,13 +74,13 @@ class _FilterState extends State<Filter> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                r"$70k",
+                r"₦70k",
                 style: TextStyle(
                   fontSize: 14,
                 ),
               ),
               Text(
-                r"$1000k",
+                r"₦1000k",
                 style: TextStyle(
                   fontSize: 14,
                 ),
