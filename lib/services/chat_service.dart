@@ -58,14 +58,45 @@ class ChatService {
   // Send message
   static Future<void> sendMessage({
     required String roomId,
-    required String receiverId,
-    required String receiverName,
+    String? receiverId,
+    String? receiverName,
     required String message,
     MessageType type = MessageType.text,
   }) async {
     try {
       final User? currentUser = _auth.currentUser;
       if (currentUser == null) throw Exception('User not authenticated');
+
+      // Get chat room details to determine receiver
+      final DocumentSnapshot roomDoc = await _firestore
+          .collection(_roomsCollection)
+          .doc(roomId)
+          .get();
+      
+      if (!roomDoc.exists) throw Exception('Chat room not found');
+      
+      final Map<String, dynamic> roomData = roomDoc.data() as Map<String, dynamic>;
+      
+      // Determine receiver ID and name based on room type
+      String finalReceiverId;
+      String finalReceiverName;
+      
+      if (roomData.containsKey('participants')) {
+        // User-to-user chat
+        final List<String> participants = List<String>.from(roomData['participants']);
+        finalReceiverId = participants.firstWhere((id) => id != currentUser.uid);
+        final Map<String, dynamic> participantNames = Map<String, dynamic>.from(roomData['participantNames']);
+        finalReceiverName = participantNames[finalReceiverId] ?? '';
+      } else {
+        // Agent-user chat
+        if (currentUser.uid == roomData['userId']) {
+          finalReceiverId = roomData['agentId'];
+          finalReceiverName = roomData['agentName'];
+        } else {
+          finalReceiverId = roomData['userId'];
+          finalReceiverName = roomData['userName'];
+        }
+      }
 
       final String messageId = const Uuid().v4();
       final DateTime now = DateTime.now();
@@ -74,8 +105,8 @@ class ChatService {
         id: messageId,
         senderId: currentUser.uid,
         senderName: currentUser.displayName ?? '',
-        receiverId: receiverId,
-        receiverName: receiverName,
+        receiverId: finalReceiverId,
+        receiverName: finalReceiverName,
         message: message,
         timestamp: now,
         type: type,
@@ -113,7 +144,7 @@ class ChatService {
             .toList());
   }
 
-  // Get chat rooms for current user
+  // Get chat rooms for current user (includes both as user and in user-to-user chats)
   static Stream<List<ChatRoom>> getChatRooms() {
     final User? currentUser = _auth.currentUser;
     if (currentUser == null) {
@@ -122,12 +153,61 @@ class ChatService {
 
     return _firestore
         .collection(_roomsCollection)
-        .where('userId', isEqualTo: currentUser.uid)
         .snapshots()
         .map((snapshot) {
-          List<ChatRoom> rooms = snapshot.docs
-              .map((doc) => ChatRoom.fromFirestore(doc))
-              .toList();
+          List<ChatRoom> rooms = [];
+          
+          for (var doc in snapshot.docs) {
+            try {
+              final data = doc.data() as Map<String, dynamic>;
+              
+              // Check if user is participant in this chat room
+              bool isParticipant = false;
+              
+              // Check if it's a user-agent chat where current user is the user
+              if (data['userId'] == currentUser.uid) {
+                isParticipant = true;
+              }
+              
+              // Check if it's a user-to-user chat where current user is in participants
+              else if (data.containsKey('participants')) {
+                final List<dynamic> participants = data['participants'] ?? [];
+                if (participants.contains(currentUser.uid)) {
+                  isParticipant = true;
+                }
+              }
+              
+              if (isParticipant) {
+                // Handle different chat room types
+                if (data.containsKey('participants')) {
+                  // User-to-user chat room - convert to ChatRoom format
+                  final List<dynamic> participants = data['participants'] ?? [];
+                  final Map<String, dynamic> participantNames = Map<String, dynamic>.from(data['participantNames'] ?? {});
+                  
+                  // Find the other participant
+                  final String otherUserId = participants.firstWhere((id) => id != currentUser.uid, orElse: () => '');
+                  final String otherUserName = participantNames[otherUserId] ?? 'Unknown User';
+                  
+                  rooms.add(ChatRoom(
+                    id: doc.id,
+                    userId: currentUser.uid,
+                    userName: participantNames[currentUser.uid] ?? '',
+                    agentId: otherUserId, // Store other user ID here for convenience
+                    agentName: otherUserName, // Store other user name here for convenience
+                    lastMessage: data['lastMessage'] ?? '',
+                    lastMessageTime: (data['lastMessageTime'] as Timestamp?)?.toDate() ?? DateTime.now(),
+                    createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+                    updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+                  ));
+                } else {
+                  // Regular user-agent chat room
+                  rooms.add(ChatRoom.fromFirestore(doc));
+                }
+              }
+            } catch (e) {
+              print('Error processing chat room ${doc.id}: $e');
+            }
+          }
           
           // Sort by last message time client-side
           rooms.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
@@ -136,7 +216,7 @@ class ChatService {
         });
   }
 
-  // Get chat rooms for agent
+  // Get chat rooms for agent (only agent-user chats, not user-to-user)
   static Stream<List<ChatRoom>> getAgentChatRooms() {
     final User? currentUser = _auth.currentUser;
     if (currentUser == null) {

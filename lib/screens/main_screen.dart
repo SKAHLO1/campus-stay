@@ -65,10 +65,12 @@ class MainScreen extends StatelessWidget {
                           ),
                           child: Column(
                             children: [
-                              Icon(
-                                Icons.location_city,
-                                size: 80,
+                              Image.asset(
+                                'assets/images/iconic1.png',
+                                height: 80,
+                                width: 80,
                                 color: Colors.white,
+                                colorBlendMode: BlendMode.srcIn,
                               ),
                               SizedBox(height: 24),
                               Text(

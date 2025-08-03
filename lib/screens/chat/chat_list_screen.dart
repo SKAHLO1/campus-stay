@@ -50,7 +50,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
         title: const Text('Chats'),
         backgroundColor: const Color(0xFF2E3192),
         foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: StreamBuilder<List<ChatRoom>>(
         stream: _currentUser!.userType == UserType.agent
@@ -112,12 +115,20 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   Widget _buildChatRoomTile(ChatRoom chatRoom) {
-    final otherUserName = _currentUser!.userType == UserType.agent
-        ? chatRoom.userName
-        : chatRoom.agentName;
-    final otherUserId = _currentUser!.userType == UserType.agent
-        ? chatRoom.userId
-        : chatRoom.agentId;
+    String otherUserName = '';
+    String otherUserId = '';
+    
+    // For all chats, we now store the other participant's info in agentName/agentId
+    // regardless of whether it's user-to-user or user-to-agent
+    if (_currentUser!.userType == UserType.agent && chatRoom.propertyId != null) {
+      // Agent viewing user-to-agent chat
+      otherUserName = chatRoom.userName;
+      otherUserId = chatRoom.userId;
+    } else {
+      // User viewing any chat (user-to-user or user-to-agent)
+      otherUserName = chatRoom.agentName;
+      otherUserId = chatRoom.agentId;
+    }
 
     return ListTile(
       leading: CircleAvatar(

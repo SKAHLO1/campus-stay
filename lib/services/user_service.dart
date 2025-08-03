@@ -104,6 +104,10 @@ class UserService {
   static Future<List<UserModel>> getAllRoommateSeekers() async {
     try {
       final User? currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('User not authenticated');
+      }
+
       final QuerySnapshot snapshot = await _firestore
           .collection(_collection)
           .where('userType', isEqualTo: 'user')
@@ -111,7 +115,7 @@ class UserService {
 
       List<UserModel> seekers = snapshot.docs
           .map((doc) => UserModel.fromFirestore(doc))
-          .where((user) => user.id != currentUser?.uid)
+          .where((user) => user.id != currentUser.uid)
           .toList();
       
       // Sort by creation date client-side
@@ -127,6 +131,10 @@ class UserService {
   static Future<List<UserModel>> searchRoommateSeekers(String query) async {
     try {
       final User? currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('User not authenticated');
+      }
+
       final QuerySnapshot snapshot = await _firestore
           .collection(_collection)
           .where('userType', isEqualTo: 'user')
@@ -135,7 +143,7 @@ class UserService {
       return snapshot.docs
           .map((doc) => UserModel.fromFirestore(doc))
           .where((user) => 
-              user.id != currentUser?.uid &&
+              user.id != currentUser.uid &&
               (user.fullName.toLowerCase().contains(query.toLowerCase()) ||
                (user.preferredLocation?.toLowerCase().contains(query.toLowerCase()) ?? false)))
           .toList();

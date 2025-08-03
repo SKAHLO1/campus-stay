@@ -28,7 +28,7 @@ class PropertyService {
     try {
       for (int i = 0; i < images.length; i++) {
         final String fileName = '${const Uuid().v4()}_${i}.jpg';
-        final Reference ref = _storage.ref().child('properties/$propertyId/$fileName');
+        final Reference ref = _storage.ref().child('property_images/$propertyId/$fileName');
         
         final UploadTask uploadTask = ref.putFile(images[i]);
         final TaskSnapshot snapshot = await uploadTask;

@@ -40,8 +40,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     try {
       await ChatService.sendMessage(
         roomId: widget.roomId,
-        receiverId: '', // This will be determined by the service
-        receiverName: widget.otherUserName,
         message: message,
       );
 

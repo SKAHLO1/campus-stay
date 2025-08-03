@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow authenticated users to read and write their own user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Allow authenticated users to read other users (for roommate search)
+      allow read, list: if request.auth != null;
+    }
+    
+    // Properties collection rules - very permissive
+    match /properties/{propertyId} {
+      // Anyone can read and list properties
+      allow read, list: if true;
+      // Only authenticated users can create/update/delete
+      allow create, update, delete: if request.auth != null;
+    }
+    
+    // Chat rooms collection rules - VERY PERMISSIVE
+    match /chat_rooms/{roomId} {
+      // Allow all operations for authenticated users
+      allow read, write, list, create, update, delete: if request.auth != null;
+      
+      // Messages subcollection - VERY PERMISSIVE
+      match /messages/{messageId} {
+        // Allow all operations for authenticated users
+        allow read, write, list, create, update, delete: if request.auth != null;
+      }
+    }
+  }
+}

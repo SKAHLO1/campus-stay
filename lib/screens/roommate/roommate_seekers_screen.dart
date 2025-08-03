@@ -111,7 +111,10 @@ class _RoommateSeekerScreenState extends State<RoommateSeekerScreen> {
         title: const Text('Find Roommates'),
         backgroundColor: const Color(0xFF2E3192),
         foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: Column(
         children: [

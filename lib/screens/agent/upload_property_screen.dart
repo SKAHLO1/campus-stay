@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:uuid/uuid.dart';
 import '../../models/property_model.dart';
 import '../../models/user_model.dart';
 import '../../services/property_service.dart';
@@ -53,6 +52,8 @@ class _UploadPropertyScreenState extends State<UploadPropertyScreen> {
     'heating',
     'furnished',
     'pet_friendly',
+    'self_con',
+    'single_room',
   ];
 
   @override
@@ -105,15 +106,9 @@ class _UploadPropertyScreenState extends State<UploadPropertyScreen> {
     });
 
     try {
-      final String propertyId = const Uuid().v4();
-
-      // Upload images first
-      final List<String> imageUrls = await PropertyService.uploadPropertyImages(
-          _selectedImages, propertyId);
-
-      // Create property
+      // Create property document first (without images)
       final PropertyModel property = PropertyModel(
-        id: propertyId,
+        id: '', // Will be set by Firestore
         title: _titleController.text,
         description: _descriptionController.text,
         price: double.parse(_priceController.text),
@@ -126,7 +121,7 @@ class _UploadPropertyScreenState extends State<UploadPropertyScreen> {
         sqm: double.parse(_sqmController.text),
         propertyType: _propertyType,
         listingType: _listingType,
-        imageUrls: imageUrls,
+        imageUrls: [], // Empty initially
         agentId: _currentAgent!.id,
         agentName: _currentAgent!.fullName,
         agentEmail: _currentAgent!.email,
@@ -137,7 +132,17 @@ class _UploadPropertyScreenState extends State<UploadPropertyScreen> {
         features: _selectedFeatures,
       );
 
-      await PropertyService.createProperty(property);
+      // Create property and get the generated ID
+      final String propertyId = await PropertyService.createProperty(property);
+
+      // Upload images using the real property ID
+      final List<String> imageUrls = await PropertyService.uploadPropertyImages(
+          _selectedImages, propertyId);
+
+      // Update property with image URLs
+      await PropertyService.updateProperty(propertyId, {
+        'imageUrls': imageUrls,
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Property uploaded successfully!')),
