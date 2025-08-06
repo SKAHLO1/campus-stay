@@ -94,6 +94,7 @@ class _RoommateSeekerScreenState extends State<RoommateSeekerScreen> {
           builder: (_) => ChatRoomScreen(
             roomId: roomId,
             otherUserName: user.fullName,
+            otherUserId: user.id,
           ),
         ),
       );

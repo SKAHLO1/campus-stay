@@ -56,6 +56,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
           builder: (_) => ChatRoomScreen(
             roomId: roomId,
             otherUserName: widget.property.agentName,
+            otherUserId: widget.property.agentId,
           ),
         ),
       );

@@ -130,15 +130,59 @@ class _ChatListScreenState extends State<ChatListScreen> {
       otherUserId = chatRoom.agentId;
     }
 
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: const Color(0xFF2E3192),
-        child: Text(
-          otherUserName.isNotEmpty ? otherUserName[0].toUpperCase() : '?',
-          style:
-              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: chatRoom.unreadCount > 0 ? const Color(0xFF2E3192).withOpacity(0.05) : null,
+        border: chatRoom.unreadCount > 0 ? Border(
+          left: BorderSide(
+            color: const Color(0xFF2E3192),
+            width: 4,
+          ),
+        ) : null,
       ),
+      child: ListTile(
+        leading: Stack(
+          children: [
+            CircleAvatar(
+              backgroundColor: chatRoom.unreadCount > 0 
+                  ? const Color(0xFF2E3192) 
+                  : Colors.grey[400],
+              child: Text(
+                otherUserName.isNotEmpty ? otherUserName[0].toUpperCase() : '?',
+                style: const TextStyle(
+                  color: Colors.white, 
+                  fontWeight: FontWeight.bold
+                ),
+              ),
+            ),
+            if (chatRoom.unreadCount > 0)
+              Positioned(
+                right: 0,
+                top: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
+                  child: Text(
+                    chatRoom.unreadCount > 99 ? '99+' : '${chatRoom.unreadCount}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+          ],
+        ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -209,10 +253,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
             builder: (_) => ChatRoomScreen(
               roomId: chatRoom.id,
               otherUserName: otherUserName,
+              otherUserId: otherUserId,
             ),
           ),
         );
       },
+      ),
     );
   }
 

@@ -25,6 +25,10 @@ class UserModel {
   final String? preferredLocation;
   final double? maxBudget;
   final String? preferredPropertyType;
+  final String? level; // 100L-500L
+  final String? religion; // Muslim/Christian
+  final String? userBio; // User's personal bio (separate from agent bio)
+  final String? gender; // Male/Female
 
   UserModel({
     required this.id,
@@ -45,6 +49,10 @@ class UserModel {
     this.preferredLocation,
     this.maxBudget,
     this.preferredPropertyType,
+    this.level,
+    this.religion,
+    this.userBio,
+    this.gender,
   });
 
   String get fullName => '$firstName $lastName';
@@ -69,6 +77,10 @@ class UserModel {
       'preferredLocation': preferredLocation,
       'maxBudget': maxBudget,
       'preferredPropertyType': preferredPropertyType,
+      'level': level,
+      'religion': religion,
+      'userBio': userBio,
+      'gender': gender,
     };
   }
 
@@ -95,6 +107,10 @@ class UserModel {
       preferredLocation: map['preferredLocation'],
       maxBudget: map['maxBudget']?.toDouble(),
       preferredPropertyType: map['preferredPropertyType'],
+      level: map['level'],
+      religion: map['religion'],
+      userBio: map['userBio'],
+      gender: map['gender'],
     );
   }
 
@@ -122,6 +138,10 @@ class UserModel {
     String? preferredLocation,
     double? maxBudget,
     String? preferredPropertyType,
+    String? level,
+    String? religion,
+    String? userBio,
+    String? gender,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -142,6 +162,10 @@ class UserModel {
       preferredLocation: preferredLocation ?? this.preferredLocation,
       maxBudget: maxBudget ?? this.maxBudget,
       preferredPropertyType: preferredPropertyType ?? this.preferredPropertyType,
+      level: level ?? this.level,
+      religion: religion ?? this.religion,
+      userBio: userBio ?? this.userBio,
+      gender: gender ?? this.gender,
     );
   }
 }

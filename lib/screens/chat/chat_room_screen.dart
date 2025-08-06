@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/chat_model.dart';
 import '../../services/chat_service.dart';
+import '../profile/profile_view_screen.dart';
 
 class ChatRoomScreen extends StatefulWidget {
   final String roomId;
   final String otherUserName;
+  final String? otherUserId;
 
   const ChatRoomScreen({
     super.key,
     required this.roomId,
     required this.otherUserName,
+    this.otherUserId,
   });
 
   @override
@@ -66,7 +69,29 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.otherUserName),
+        title: InkWell(
+          onTap: widget.otherUserId != null ? () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ProfileViewScreen(
+                  userId: widget.otherUserId!,
+                  userName: widget.otherUserName,
+                ),
+              ),
+            );
+          } : null,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(widget.otherUserName),
+              if (widget.otherUserId != null) ...[
+                const SizedBox(width: 8),
+                const Icon(Icons.info_outline, size: 20),
+              ],
+            ],
+          ),
+        ),
         backgroundColor: const Color(0xFF2E3192),
         foregroundColor: Colors.white,
       ),
@@ -163,6 +188,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
   Widget _buildMessageBubble(ChatMessage message) {
     final isMe = message.senderId == _currentUser?.uid;
+    final isUnread = !message.isRead && !isMe;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -171,15 +197,33 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           if (!isMe) ...[
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: const Color(0xFF2E3192),
-              child: Text(
-                message.senderName.isNotEmpty
-                    ? message.senderName[0].toUpperCase()
-                    : '?',
-                style: const TextStyle(color: Colors.white, fontSize: 12),
-              ),
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: isUnread ? Colors.red : const Color(0xFF2E3192),
+                  child: Text(
+                    message.senderName.isNotEmpty
+                        ? message.senderName[0].toUpperCase()
+                        : '?',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
+                if (isUnread)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.white, width: 1),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(width: 8),
           ],
@@ -187,13 +231,23 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: isMe ? const Color(0xFF2E3192) : Colors.grey[200],
+                color: isMe 
+                    ? const Color(0xFF2E3192) 
+                    : (isUnread ? Colors.red.withOpacity(0.1) : Colors.grey[200]),
+                border: isUnread ? Border.all(color: Colors.red.withOpacity(0.3), width: 2) : null,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20),
                   topRight: const Radius.circular(20),
                   bottomLeft: Radius.circular(isMe ? 20 : 4),
                   bottomRight: Radius.circular(isMe ? 4 : 20),
                 ),
+                boxShadow: isUnread ? [
+                  BoxShadow(
+                    color: Colors.red.withOpacity(0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ] : null,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

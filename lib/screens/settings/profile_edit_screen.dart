@@ -24,12 +24,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late TextEditingController _licenseNumberController;
   late TextEditingController _preferredLocationController;
   late TextEditingController _maxBudgetController;
+  late TextEditingController _userBioController;
 
   File? _selectedImage;
   bool _isLoading = false;
   String? _preferredPropertyType;
+  String? _selectedLevel;
+  String? _selectedReligion;
+  String? _selectedGender;
 
   final List<String> _propertyTypes = ['house', 'apartment', 'condo', 'villa', 'studio'];
+  final List<String> _levels = ['100L', '200L', '300L', '400L', '500L'];
+  final List<String> _religions = ['Muslim', 'Christian'];
+  final List<String> _genders = ['Male', 'Female'];
 
   @override
   void initState() {
@@ -44,7 +51,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _maxBudgetController = TextEditingController(
       text: widget.user.maxBudget?.toString() ?? '',
     );
+    _userBioController = TextEditingController(text: widget.user.userBio ?? '');
     _preferredPropertyType = widget.user.preferredPropertyType;
+    _selectedLevel = widget.user.level;
+    _selectedReligion = widget.user.religion;
+    _selectedGender = widget.user.gender;
   }
 
   Future<void> _pickImage() async {
@@ -106,6 +117,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         updates['preferredLocation'] = _preferredLocationController.text.isEmpty ? null : _preferredLocationController.text;
         updates['maxBudget'] = _maxBudgetController.text.isEmpty ? null : double.tryParse(_maxBudgetController.text);
         updates['preferredPropertyType'] = _preferredPropertyType;
+        updates['level'] = _selectedLevel;
+        updates['religion'] = _selectedReligion;
+        updates['userBio'] = _userBioController.text.isEmpty ? null : _userBioController.text;
+        updates['gender'] = _selectedGender;
       }
 
       await UserService.updateUserProfile(widget.user.id, updates);
@@ -317,6 +332,91 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         ],
                         onChanged: (value) => setState(() => _preferredPropertyType = value),
                       ),
+                      const SizedBox(height: 16),
+
+                      // Level
+                      DropdownButtonFormField<String>(
+                        value: _selectedLevel,
+                        decoration: const InputDecoration(
+                          labelText: 'Level',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          const DropdownMenuItem(value: null, child: Text('Select Level')),
+                          ..._levels.map((level) {
+                            return DropdownMenuItem(
+                              value: level,
+                              child: Text(level),
+                            );
+                          }),
+                        ],
+                        onChanged: (value) => setState(() => _selectedLevel = value),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Religion
+                      DropdownButtonFormField<String>(
+                        value: _selectedReligion,
+                        decoration: const InputDecoration(
+                          labelText: 'Religion',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          const DropdownMenuItem(value: null, child: Text('Select Religion')),
+                          ..._religions.map((religion) {
+                            return DropdownMenuItem(
+                              value: religion,
+                              child: Text(religion),
+                            );
+                          }),
+                        ],
+                        onChanged: (value) => setState(() => _selectedReligion = value),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Gender
+                      DropdownButtonFormField<String>(
+                        value: _selectedGender,
+                        decoration: const InputDecoration(
+                          labelText: 'Gender',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          const DropdownMenuItem(value: null, child: Text('Select Gender')),
+                          ..._genders.map((gender) {
+                            return DropdownMenuItem(
+                              value: gender,
+                              child: Text(gender),
+                            );
+                          }),
+                        ],
+                        onChanged: (value) => setState(() => _selectedGender = value),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Bio Section
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Bio',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      TextFormField(
+                        controller: _userBioController,
+                        decoration: const InputDecoration(
+                          labelText: 'Bio',
+                          border: OutlineInputBorder(),
+                          hintText: 'Tell others about yourself... (120 characters max)',
+                        ),
+                        maxLines: 3,
+                        maxLength: 120,
+                      ),
                     ],
 
                     const SizedBox(height: 32),
@@ -351,6 +451,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _licenseNumberController.dispose();
     _preferredLocationController.dispose();
     _maxBudgetController.dispose();
+    _userBioController.dispose();
     super.dispose();
   }
 }
